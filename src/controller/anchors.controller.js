@@ -5,7 +5,8 @@ const {
   getAnchorsInfoByAnchorId,
   getTopAnchorsInfo,
   changeIfShowByAnchorId,
-  getDarkRoomAnchorsData
+  getDarkRoomAnchorsData,
+  getCatAbilityData
 } = require("../service/anchors.service");
 
 class AnchorsController {
@@ -28,7 +29,7 @@ class AnchorsController {
     ctx.body = result[0];
   }
 
-  // 获取主播详情页信息
+  // 获取主播详情页信息(带货能力)
   async detail(ctx, next) {
     //1.获取主播id
     const anchorId = ctx.params.anchorId;
@@ -37,6 +38,16 @@ class AnchorsController {
     //3.返回结果
     ctx.body = result[0];
   }
+
+  // 获取主播产品类别能力详情（带货能力）
+  async getCatAbility(ctx, next) {
+    const { anchorId, catName } = ctx.request.query
+    // 发送网络请求
+    const result = await getCatAbilityData(anchorId, catName)
+    // 返回结果
+    ctx.body = result
+  }
+
 
   // 获取热门网红（按粉丝数排名前50）
   async topAnchors(ctx, next) {
@@ -57,6 +68,7 @@ class AnchorsController {
     const result = await getDarkRoomAnchorsData()
     ctx.body = result
   }
+
 }
 
 module.exports = new AnchorsController();

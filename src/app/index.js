@@ -6,7 +6,8 @@ const backUserRouter = require('../router/back_user.router') //后台用户注�
 const loginRouter = require('../router/login.router') //登录
 const backLoginRouter = require('../router/back_login.router') //后台用户登录
 const anchorsRouter = require('../router/anchors.router') //主播信息表
-const livesRouter = require('../router/lives.router')
+const livesRouter = require('../router/lives.router')  //直播信息列表
+const goodsRouter = require('../router/goods.router') // 商品信息列表
 
 const app = new Koa() //创建实例
 
@@ -37,6 +38,8 @@ app.use(anchorsRouter.routes())
 app.use(anchorsRouter.allowedMethods())
 app.use(livesRouter.routes())
 app.use(livesRouter.allowedMethods())
+app.use(goodsRouter.routes())
+app.use(goodsRouter.allowedMethods())
 
 
 // 错误监听

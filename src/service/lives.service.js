@@ -70,7 +70,49 @@ class LivesService {
 		WHERE l.ifShow = 0;
     `
     const result = await connection.execute(statement);
-    console.log(result);
+    return result[0]
+  }
+
+  //直播商品详情页
+  // 获取直播商品详情列表
+  async getDetailList(offset, size, itemId) {
+    const statement = 
+    `
+    SELECT *,
+    (SELECT liveCount from items_stats WHERE itemId = live_items.itemId) liveCount
+    FROM live_items
+    WHERE liveId = ?
+    LIMIT ?, ?;    
+    `
+    const result = await connection.execute(statement, [ itemId, offset, size ]);
+    return result[0]
+  }
+
+  // 将某件直播商品关键黑屋
+  async changeIfShowByItemId( itemId, ifShow) {
+    const statement = `UPDATE live_items  SET ifShow = ? WHERE itemId = ?;`
+    const result = await connection.execute(statement, [ ifShow, itemId]);
+    return result[0];
+  }
+
+  // 获取直播商品详情列表
+  async getLiveGoodsDarkRoomData() {
+    const statement = 
+    `
+    SELECT *
+    from live_items
+		WHERE ifShow = 0;
+    `
+    const result = await connection.execute(statement);
+    return result[0]
+  }
+  // 删除某件直播商品详情的商品
+  async removeLiveGoodsData(itemId) {
+    const statement = 
+    `
+    DELETE FROM live_items WHERE itemId = ?;
+    `
+    const result = await connection.execute(statement, [ itemId ]);
     return result[0]
   }
 }
