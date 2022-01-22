@@ -1,19 +1,12 @@
 const connection = require('../app/database')
+const { livesSearchSql } = require('../utils/sql')
 class LivesService {
   // 获取直播信息列表
-  async getLivesInfo(offset, size) {
-    console.log(offset, size);
-    const statement = `
-    SELECT 
-		l.ID ID,anchorName,l.anchorId anchorId,liveId,liveTitle,visitNum,totalNum,liveQuantity,
-		totalAmount,l.ifShow ifShow,item_done,
-    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId) totalCount
-    from anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId
-    LIMIT ?,?;
-    `
-    const result = await connection.execute(statement, [offset, size])
-    console.log(result);
-    return result
+  async getLivesInfo(offset, size, anchorName, liveTitle) {
+  
+  // 相关的sql判断抽离出去
+  const res = await livesSearchSql(offset, size, anchorName, liveTitle)
+  return res
   }
 
   // 根据网红名获取直播信息
@@ -75,7 +68,7 @@ class LivesService {
 
   //直播商品详情页
   // 获取直播商品详情列表
-  async getDetailList(offset, size, itemId) {
+  async getDetailList(offset, size, liveId) {
     const statement = 
     `
     SELECT *,
@@ -84,7 +77,7 @@ class LivesService {
     WHERE liveId = ?
     LIMIT ?, ?;    
     `
-    const result = await connection.execute(statement, [ itemId, offset, size ]);
+    const result = await connection.execute(statement, [ liveId, offset, size ]);
     return result[0]
   }
 

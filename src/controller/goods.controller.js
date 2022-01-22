@@ -2,8 +2,8 @@ const { getGoodsListInfo, removeGood, changeIfShowByItemId, getDarkRoomGoodsData
 class GoodsController {
   // 获取商品信息列表
   async list(ctx, next) {
-    const { offset, size } = ctx.request.query
-    const result = await getGoodsListInfo(offset, size)
+    const { offset, size, title, catName, min, max } = ctx.request.query
+    const result = await getGoodsListInfo(offset, size, title, catName, min, max )
     ctx.body = result
   }
 

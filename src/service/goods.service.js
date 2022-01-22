@@ -1,14 +1,11 @@
 const connections = require('../app/database')
+const { goodsSearchSql } = require('../utils/sql')
 class GoodsSerive {
-  // 获取商品信息列表
-  async getGoodsListInfo(offset, size) {
-    const statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
-    FROM items_stats
-    LIMIT ?,?;
-    `
-    const result = await connections.execute(statement, [ offset, size])
-    return result[0]
+  // 获取商品信息列表(待优化)
+  async getGoodsListInfo(offset, size, title, catName, min, max) {
+    // 逻辑判断太冗余，抽离出去
+    const res = await goodsSearchSql(offset, size, title, catName, min, max)
+    return res
   }
 
 

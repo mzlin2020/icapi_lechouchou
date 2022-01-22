@@ -13,24 +13,24 @@ const {
 class LivesController {
   // 获取直播信息列表
   async list(ctx, next) {
-    const { offset, size } = ctx.request.query;
-    const result = await getLivesInfo(offset, size);
+    const { offset, size, anchorName, liveTitle } = ctx.request.query;
+    const result = await getLivesInfo(offset, size, anchorName, liveTitle);
     ctx.body = result[0];
   }
-
+  // 获取直播信息通过主播名
   async listByname(ctx, next) {
     const { anchorName } = ctx.request.query;
     const result = await getLivesInfoByAnchorName(anchorName);
     ctx.body = result[0];
   }
-
+  // 获取直播信息通过直播Id
   async listByLiveId(ctx, next) {
     const { liveId } = ctx.request.query;
     const result = await getLivesInfoByLiveId(liveId);
     ctx.body = result[0];
   }
 
-  // 改变ifShow的值
+  // 改变ifShow的值（关进黑屋）
   async changeIfShow(ctx, next) {
     // 获取直播id
     const { liveId, ifShow } = ctx.request.query
@@ -49,8 +49,8 @@ class LivesController {
   // 直播商品详情
   // 直播详情商品列表
   async detailList(ctx, next) {
-    const { offset, size, itemId } = ctx.request.query
-    const result = await getDetailList(offset, size, itemId)
+    const { offset, size, liveId } = ctx.request.query
+    const result = await getDetailList(offset, size, liveId)
     ctx.body = result
   }
 

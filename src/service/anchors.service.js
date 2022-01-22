@@ -1,78 +1,12 @@
 const connection = require("../app/database");
+const { anchorsSearchSql } = require('../utils/sql')
 
 class AnchorsService {
   // 获取主播信息列表
   async getAnchorsInfo(offset, size, anchorName, fansNum) {
-    // sql语句
-    let statement = `
-    SELECT 
-    ID,anchorId,startBuildModel,ifShow,done,updateTime,anchorName,saleAbility,fansNum,agencyName,anchorType,liveTag,weight,picUrl,anchorClass,telephone,email,serviceFee,pgLiveQuantity,medianPrice,pgAudienceNum,pgVisitNum,pgLikedNum,hasShop,shopType,
-    (SELECT COUNT(*) FROM anchors) totalCount
-    FROM anchors
-    LIMIT ?,?;
-    `;
-    if (!offset && !size) {
-      // 如果没有传值，则直接返回10条数据
-      const result = await connection.execute(statement, ["0", "10"]);
-      return result;
-    } else if (fansNum && anchorName && offset && size) {
-      //都有值，说明要既符合主播名搜索，也符合范围搜索
-      statement = `
-      SELECT 
-      ID,anchorId,startBuildModel,ifShow,done,updateTime,anchorName,saleAbility,fansNum,agencyName,anchorType,liveTag,weight,picUrl,anchorClass,telephone,email,serviceFee,pgLiveQuantity,medianPrice,pgAudienceNum,pgVisitNum,pgLikedNum,hasShop,shopType,
-      (SELECT COUNT(*) FROM anchors where anchorName LIKE ? && fansNum BETWEEN ? AND ?) totalCount
-      FROM anchors
-      where anchorName LIKE ? && fansNum BETWEEN ? AND ?
-      LIMIT ?, ?;
-      `;
-      anchorName = "%" + anchorName + "%";
-      const result = await connection.execute(statement, [
-        anchorName,
-        fansNum[0],
-        fansNum[1],
-        anchorName,
-        fansNum[0],
-        fansNum[1],
-        offset,
-        size,
-      ]);
-      return result;
-    } else if (anchorName && offset && size) {
-      //如果都有值，按名字搜索
-      statement = `SELECT 
-      ID,anchorId,startBuildModel,ifShow,done,updateTime,anchorName,saleAbility,fansNum,agencyName,anchorType,liveTag,weight,picUrl,anchorClass,telephone,email,serviceFee,pgLiveQuantity,medianPrice,pgAudienceNum,pgVisitNum,pgLikedNum,hasShop,shopType,
-      (SELECT COUNT(*) FROM anchors) totalCount
-      FROM anchors
-      where anchorName LIKE ?
-      LIMIT ?, ?;`;
-      anchorName = "%" + anchorName + "%";
-      const result = await connection.execute(statement, [anchorName, offset, size]);
-      return result;
-    } else if (offset && size && fansNum) {
-      // 如果范围有值
-      statement = `
-      SELECT 
-      ID,anchorId,startBuildModel,ifShow,done,updateTime,anchorName,saleAbility,fansNum,agencyName,anchorType,liveTag,weight,picUrl,anchorClass,telephone,email,serviceFee,pgLiveQuantity,medianPrice,pgAudienceNum,pgVisitNum,pgLikedNum,hasShop,shopType,
-      (SELECT COUNT(*) FROM anchors where fansNum BETWEEN ? AND ?) totalCount
-      FROM anchors
-      where fansNum BETWEEN ? AND ?
-      LIMIT ?, ?;
-      `;
-      // 有传值，则根据传值获取数据
-      const result = await connection.execute(statement, [
-        fansNum[0],
-        fansNum[1],
-        fansNum[0],
-        fansNum[1],
-        offset,
-        size,
-      ]);
-      return result;
-    } else {
-      // 有传值，则根据传值获取数据
-      const result = await connection.execute(statement, [offset, size]);
-      return result;
-    }
+    // 此处逻辑判断过于冗余，抽离出去
+    const res = await anchorsSearchSql(offset, size, anchorName, fansNum)
+    return res
   }
 
   // 根据主播名字获取主播信息

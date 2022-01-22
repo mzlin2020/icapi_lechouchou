@@ -31,16 +31,16 @@ livesRouter.get('/darkRoom', verifyAuth, getDarkRoomLives)
 
 // 直播商品详情相关接口
 // 获取直播商品详情列表
-livesRouter.get("/liveGoods", detailList)
+livesRouter.get("/liveGoods", verifyAuth, detailList)
 
 // 直播商品详情黑屋列表
-livesRouter.get("/liveGoods/darkRoom", getLiveGoodsDarkRoom) 
+livesRouter.get("/liveGoods/darkRoom", verifyAuth, getLiveGoodsDarkRoom) 
 
 // 将某件直播商品关进黑屋
-livesRouter.put("/liveGoods/ifShow", changeDetailIfShow)
+livesRouter.put("/liveGoods/ifShow", verifyAuth, changeDetailIfShow)
 
 // 将某件直播商品删除掉
-livesRouter.delete("/liveGoods", removeLiveGoods)
+livesRouter.delete("/liveGoods", verifyAuth, removeLiveGoods)
 
 
 module.exports = livesRouter;
