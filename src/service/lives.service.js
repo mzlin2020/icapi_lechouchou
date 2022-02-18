@@ -72,23 +72,24 @@ class LivesService {
     const statement = 
     `
     SELECT *,
-    (SELECT liveCount from items_stats WHERE itemId = live_items.itemId) liveCount
+    (SELECT liveCount from items_stats WHERE itemId = live_items.itemId) liveCount,
+    (SELECT COUNT(*) from live_items WHERE liveId = ?) total
     FROM live_items
     WHERE liveId = ?
-    LIMIT ?, ?;    
+    LIMIT ?, ?;
     `
-    const result = await connection.execute(statement, [ liveId, offset, size ]);
+    const result = await connection.execute(statement, [ liveId, liveId, offset, size ]);
     return result[0]
   }
 
-  // 将某件直播商品关键黑屋
+  // 将某件直播商品关进黑屋
   async changeIfShowByItemId( itemId, ifShow) {
     const statement = `UPDATE live_items  SET ifShow = ? WHERE itemId = ?;`
     const result = await connection.execute(statement, [ ifShow, itemId]);
     return result[0];
   }
 
-  // 获取直播商品详情列表
+  // 获取直播商品详情列表(黑屋)
   async getLiveGoodsDarkRoomData() {
     const statement = 
     `

@@ -21,6 +21,21 @@ const verfiyUser = async (ctx, next) => {
   await next()
 }
 
+// 验证前端是否已经关注过该主播
+const verifySubscribe = async(ctx, next) => {
+  const { uid, anchorId } = ctx.request.body
+  // 判断本次前端用户关注的主播是否已经关注过
+  const result = await userService.getSubscribeData(uid, anchorId)
+  //如果有值，说明已经关注过不能重复关注
+  if(result.length) {
+    const error = new Error(errorTypes.ANCHOR_HAS_BEEN_SUBSCRIBED)
+    return ctx.app.emit("error", error, ctx)
+  }
+
+  await next()
+}
+
 module.exports = {
-  verfiyUser
+  verfiyUser,
+  verifySubscribe
 }

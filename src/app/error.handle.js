@@ -23,6 +23,10 @@ const errorHandler = (error, ctx) => {
       status = 401
       message = "未授权~"
       break;
+    case errorTypes.ANCHOR_HAS_BEEN_SUBSCRIBED:
+      status = 409
+      message = "不能重复关注该主播~"
+      break;
     default:
       status = 404;
       message = "NOT FOUND"

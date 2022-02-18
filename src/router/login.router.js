@@ -4,7 +4,7 @@ const { verifyLogin, verifyAuth } = require('../middleware/verifyLogin.middlewar
 
 const loginRouter = new Router()
 
-loginRouter.post('/user/login', verifyLogin, login)
+loginRouter.post('/user/login' , verifyLogin, login)
 
 // 测试登录
 loginRouter.get('/login_test', verifyAuth, success)

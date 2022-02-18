@@ -8,7 +8,7 @@ class LoginController {
 
     // 根据私钥生成token
     const token = jwt.sign({ username, password }, PRIVATE_KEY, {
-      expiresIn: 60 * 60 * 24, //24小时
+      expiresIn: 60 * 60 * 24 * 30, //30天
       algorithm: "RS256",
     });
 

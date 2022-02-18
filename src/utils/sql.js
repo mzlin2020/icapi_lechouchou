@@ -14,82 +14,82 @@ const goodsSearchSql = async (offset, size, title, catName, min, max) => {
   if(title && catName && min && max) {
     // 如果传入了标题、类目和销量范围
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE title LIKE ? AND catName = ? AND liveQuantity BETWEEN ? AND ?) totalCount
     FROM items_stats
     WHERE title LIKE ? AND catName = ? AND liveQuantity BETWEEN ? AND ?
     LIMIT ?,?;
     `
     title = "%" + title + "%";
-    const result = await connection.execute(statement, [ title, catName, min, max, offset, size])
+    const result = await connection.execute(statement, [ title, catName, min, max, title, catName, min, max, offset, size])
     return result[0]
   } 
   else if(title && catName) {
     // 如果传入了标题、类目
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE title LIKE ? AND catName = ?) totalCount
     FROM items_stats
     WHERE title LIKE ? AND catName = ? 
     LIMIT ?,?;
     `
     title = "%" + title + "%";
-    const result = await connection.execute(statement, [ title, catName, offset, size])
+    const result = await connection.execute(statement, [ title, catName, title, catName, offset, size])
     return result[0]
   }
   else if(title && min && max) {
     // 如果传入了标题销量范围
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE title LIKE ? AND liveQuantity BETWEEN ? AND ?) totalCount
     FROM items_stats
     WHERE title LIKE ? AND liveQuantity BETWEEN ? AND ?
     LIMIT ?,?;
     `
     title = "%" + title + "%";
-    const result = await connection.execute(statement, [ title, min, max, offset, size])
+    const result = await connection.execute(statement, [ title, min, max, title, min, max, offset, size])
     return result[0]
   }
   else if(catName && min && max) {
     // 如果传入了类目和销量范围
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE  catName = ? AND liveQuantity BETWEEN ? AND ?) totalCount
     FROM items_stats
     WHERE  catName = ? AND liveQuantity BETWEEN ? AND ?
     LIMIT ?,?;
     `
-    const result = await connection.execute(statement, [ catName, min, max, offset, size])
+    const result = await connection.execute(statement, [ catName, min, max, catName, min, max, offset, size])
     return result[0]
   }
   else if(title) {
     // 如果传入了标题
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE title LIKE ?) totalCount
     FROM items_stats
     WHERE title LIKE ?
     LIMIT ?,?;
     `
     title = "%" + title + "%";
-    const result = await connection.execute(statement, [ title, offset, size])
+    const result = await connection.execute(statement, [ title, title, offset, size])
     return result[0]
   }
   else if (catName) {
     // 如果传入了类目
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE  catName = ? ) totalCount
     FROM items_stats
     WHERE  catName = ? 
     LIMIT ?,?;
     `
-    const result = await connection.execute(statement, [ catName, offset, size])
+    const result = await connection.execute(statement, [ catName, catName, offset, size])
     return result[0]
   }
   else if( min && max) {
     // 如果传入了销量范围
     statement = `
-    SELECT *,(SELECT COUNT(*) FROM items_stats) totalCount
+    SELECT *,(SELECT COUNT(*) FROM items_stats WHERE liveQuantity BETWEEN ? AND ?) totalCount
     FROM items_stats
     WHERE liveQuantity BETWEEN ? AND ?
     LIMIT ?,?;
     `
-    const result = await connection.execute(statement, [ min, max, offset, size ])
+    const result = await connection.execute(statement, [ min, max, min, max, offset, size ])
     return result[0]
   }
   else {
@@ -114,14 +114,14 @@ const livesSearchSql = async (offset, size, anchorName, liveTitle) => {
     SELECT 
     l.ID ID,anchorName,l.anchorId anchorId,liveId,liveTitle,visitNum,totalNum,liveQuantity,
     totalAmount,l.ifShow ifShow,item_done,
-    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId) totalCount
+    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId WHERE anchorName LIKE ? AND liveTitle LIKE ?) totalCount
     from anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId
     WHERE anchorName LIKE ? AND liveTitle LIKE ?
     LIMIT ?,?;
     `
     anchorName = "%" + anchorName + "%";
     liveTitle = "%" + liveTitle + "%";
-    const result = await connection.execute(statement, [anchorName , liveTitle, offset, size])
+    const result = await connection.execute(statement, [ anchorName, liveTitle, anchorName, liveTitle, offset, size])
     return result
   } 
   else if (anchorName) {
@@ -130,13 +130,13 @@ const livesSearchSql = async (offset, size, anchorName, liveTitle) => {
     SELECT 
     l.ID ID,anchorName,l.anchorId anchorId,liveId,liveTitle,visitNum,totalNum,liveQuantity,
     totalAmount,l.ifShow ifShow,item_done,
-    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId) totalCount
+    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId WHERE anchorName LIKE ?) totalCount
     from anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId
     WHERE anchorName LIKE ?
     LIMIT ?,?;
     `
     anchorName = "%" + anchorName + "%";
-    const result = await connection.execute(statement, [anchorName , offset, size])
+    const result = await connection.execute(statement, [ anchorName, anchorName, offset, size ])
     return result
   }
   else if(liveTitle) {
@@ -145,13 +145,13 @@ const livesSearchSql = async (offset, size, anchorName, liveTitle) => {
     SELECT 
     l.ID ID,anchorName,l.anchorId anchorId,liveId,liveTitle,visitNum,totalNum,liveQuantity,
     totalAmount,l.ifShow ifShow,item_done,
-    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId) totalCount
+    (SELECT COUNT(*) FROM anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId WHERE liveTitle LIKE ?) totalCount
     from anchor_lives l LEFT JOIN anchors a ON l.anchorId = a.anchorId
     WHERE liveTitle LIKE ?
     LIMIT ?,?;
     `
     liveTitle = "%" + liveTitle + "%";
-    const result = await connection.execute(statement, [liveTitle, offset, size])
+    const result = await connection.execute(statement, [ liveTitle, liveTitle, offset, size])
     return result
   }
   else {
@@ -233,8 +233,74 @@ const anchorsSearchSql = async (offset, size, anchorName, fansNum) => {
     }
 }
 
+// 前端_类别与价格匹配网红
+const getMatchAnchorDataSql = async (category, price, offset, size) => {
+  offset = String(offset)
+  size = String(size)
+  //价格区间10以内
+  const minPrice = String((price - 5))
+  const maxPrice = String((price + 5))
+
+  let statement = `
+  SELECT aca.ID id, aca.anchorId anchorId,
+  (SELECT anchorName FROM anchors WHERE anchorId = aca.anchorId ) celebrity_name,
+  catName category, pgItemSalePrice, fansNum fans_num,catSaleAbility ,ifShow,0 as match_index,
+  `;
+  if(category && price) {
+    statement = 
+    `${statement}   
+    (SELECT count(*) FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId WHERE catName = ? AND pgItemSalePrice BETWEEN ? AND ?) total
+    FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId
+    WHERE catName = ? AND pgItemSalePrice BETWEEN ? AND ?
+    LIMIT ?, ?;`
+    const arr = [category, minPrice, maxPrice, category, minPrice, maxPrice, offset, size]
+    const result = await connection.execute(statement, arr);
+    return result[0];
+  } 
+  else if(category) {
+    statement = 
+    `${statement}   
+    (SELECT count(*) FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId WHERE catName = ?) total
+    FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId
+    WHERE catName = ? 
+    LIMIT ?, ?;`
+    const arr = [category, category, offset, size]
+    const result = await connection.execute(statement, arr);
+    return result[0];
+  }
+  else if(price) {
+    statement = 
+    `${statement}   
+    (SELECT count(*) FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId WHERE pgItemSalePrice BETWEEN ? AND ?) total
+    FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId
+    WHERE pgItemSalePrice BETWEEN ? AND ?
+    LIMIT ?, ?;`
+    const arr = [ minPrice, maxPrice, minPrice, maxPrice, offset, size]
+    const result = await connection.execute(statement, arr);
+    return result[0];
+  }
+  else {
+    statement = 
+    `${statement}   
+    (SELECT count(*) FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId ) total
+    FROM anchor_cat_ability aca LEFT JOIN anchors a
+    ON aca.anchorId = a.anchorId
+    LIMIT ?, ?;`
+    const result = await connection.execute(statement, [offset, size]);
+    return result[0];
+  }
+}
+
 module.exports = {
   goodsSearchSql,
   livesSearchSql,
-  anchorsSearchSql
+  anchorsSearchSql,
+  getMatchAnchorDataSql
 }

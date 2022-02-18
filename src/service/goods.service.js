@@ -34,6 +34,17 @@ class GoodsSerive {
     const result = await connections.execute(statement, [itemId])
     return result[0]
   }
+
+  // 获取所有产品的类别信息
+  async getCategoriesData() {
+    const statement = `
+    SELECT catName 'category'
+    FROM live_items 
+    GROUP BY catName;
+    `
+    const result = await connections.execute(statement)
+    return result[0]
+  }
 }
 
 module.exports = new GoodsSerive()

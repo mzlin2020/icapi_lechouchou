@@ -1,12 +1,14 @@
 const { handleFanNumRange } = require('../utils/handleFanNumRange')
 const {
   getAnchorsInfo,
-  getAnchorsInfoByName,
   getAnchorsInfoByAnchorId,
   getTopAnchorsInfo,
   changeIfShowByAnchorId,
   getDarkRoomAnchorsData,
-  getCatAbilityData
+  getCatAbilityData,
+  getHistoryCatAbilityData,
+  getMatchAnchorData,
+  searchAnchorsByname
 } = require("../service/anchors.service");
 
 class AnchorsController {
@@ -20,14 +22,6 @@ class AnchorsController {
     ctx.body = result[0];
   }
 
-  //根据主播名获取主播信息（模糊匹配）
-  async listByName(ctx, next) {
-    //1.获取名字
-    const { anchorName } = ctx.request.query;
-    //2.发送网络请求
-    const result = await getAnchorsInfoByName(anchorName);
-    ctx.body = result[0];
-  }
 
   // 获取主播详情页信息(带货能力)
   async detail(ctx, next) {
@@ -48,10 +42,20 @@ class AnchorsController {
     ctx.body = result
   }
 
+  // 获取主播历史带货类别能力详情（带货能力详情页）
+  async getHistoryCatAbility(ctx, next) {
+    const { anchorId, catName } = ctx.request.query
+    // 发送网络请求
+    const result = await getHistoryCatAbilityData(anchorId, catName)
+    // 返回结果
+    ctx.body = result
+  }
+
 
   // 获取热门网红（按粉丝数排名前50）
   async topAnchors(ctx, next) {
-    const result = await getTopAnchorsInfo();
+    const { require_num } = ctx.request.query 
+    const result = await getTopAnchorsInfo(require_num);
     ctx.body = result[0];
   }
 
@@ -69,6 +73,19 @@ class AnchorsController {
     ctx.body = result
   }
 
+  // 前端_类别与价格匹配网红
+  async matchAnchor(ctx, next) {
+    const { category, price, offset,size } = ctx.request.body
+    const result = await getMatchAnchorData(category, price, offset,size)
+    ctx.body = result
+  }
+
+  // 前端_查询主播（根据主播名）
+  async searchAnchorsByname(ctx, next) {
+    const { offset, size ,celebrity_name } = ctx.request.body
+    const result = await searchAnchorsByname(offset, size, celebrity_name)
+    ctx.body = result
+  }
 }
 
 module.exports = new AnchorsController();

@@ -1,4 +1,10 @@
-const { getGoodsListInfo, removeGood, changeIfShowByItemId, getDarkRoomGoodsData } = require('../service/goods.service')
+const { 
+  getGoodsListInfo, 
+  removeGood, 
+  changeIfShowByItemId, 
+  getDarkRoomGoodsData, 
+  getCategoriesData
+ } = require('../service/goods.service')
 class GoodsController {
   // 获取商品信息列表
   async list(ctx, next) {
@@ -25,6 +31,12 @@ class GoodsController {
   async remove(ctx, next) {
     const itemId = ctx.params.itemId
     const result = await removeGood(itemId)
+    ctx.body = result
+  }
+
+  // 获取所有产品的类别
+  async getCategories(ctx, next) {
+    const result = await getCategoriesData()
     ctx.body = result
   }
 }

@@ -43,7 +43,8 @@ class backUserService {
 
   // 5.修改用户信息
   async updateUser(username, name, password, permissions, isPasswordChange) {
-    if(isPasswordChange) { //如果密码改变了，重新进行加密，否则不处理
+    isPasswordChange = Number(isPasswordChange)
+    if(isPasswordChange !== 0) { //如果密码改变了，重新进行加密，否则不处理
       password = md5Password(password)
     }
     const statememt = `UPDATE admin_user SET name =?, permissions =?, password=? WHERE username=?; `

@@ -1,5 +1,5 @@
 const connection = require("../app/database");
-const { anchorsSearchSql } = require('../utils/sql')
+const { anchorsSearchSql, getMatchAnchorDataSql } = require('../utils/sql')
 
 class AnchorsService {
   // 获取主播信息列表
@@ -9,19 +9,7 @@ class AnchorsService {
     return res
   }
 
-  // 根据主播名字获取主播信息
-  async getAnchorsInfoByName(anchorName) {
-    const statement = `
-    SELECT ID,anchorId,startBuildModel,done,updateTime,
-    JSON_OBJECT('anchorName',anchorName,'saleAbility',saleAbility,'fansNum',fansNum,'agencyName',agencyName,'anchorType',anchorType,'liveTag',liveTag,'weight',weight,'avatar',picUrl,'anchorClass',anchorClass,'telephone',telephone,'email',email,'serviceFee',serviceFee) anchorInfo,
-    JSON_OBJECT('pgLiveQuantity',pgLiveQuantity,'medianPrice',medianPrice,'pgAudienceNum',pgAudienceNum,'pgVisitNum'       ,pgVisitNum,'pgLikedNum',pgLikedNum) liveInfo,
-    JSON_OBJECT('hasShop',hasShop,'type',shopType) shopInfo
-    from anchors WHERE anchorName  LIKE ?;
-    `;
-    anchorName = "%" + anchorName + "%"; //模糊匹配
-    const result = await connection.execute(statement, [anchorName]);
-    return result;
-  }
+
 
   //根据主播Id获取主播详情信息（详情页带货能力页）
   async getAnchorsInfoByAnchorId(anchorId) {
@@ -53,18 +41,36 @@ class AnchorsService {
     }
   }
 
+    // 获取主播历史带货类别能力详情（带货能力详情页）
+    async getHistoryCatAbilityData(anchorId, catName) {
+      let statement = `
+      SELECT * FROM anchor_history_ability WHERE anchorId = ?;
+    `;
+      // 如果有catName这个参数
+      if (catName) {
+        statement = `
+        SELECT * FROM anchor_history_ability WHERE anchorId = ? AND catName = ?;
+      `;
+        const result = await connection.execute(statement, [anchorId, catName]);
+        return result[0];
+      } else {
+        // 如果没有则返回该主播所有的历史纪记录
+        const result = await connection.execute(statement, [anchorId]);
+        return result[0];
+      }
+    }
+
+
   // 获取热门网红
-  async getTopAnchorsInfo() {
+  async getTopAnchorsInfo(require_num) {
     const statement = `
-    SELECT ID,anchorId,startBuildModel,done,updateTime,
-    JSON_OBJECT('anchorName',anchorName,'saleAbility',saleAbility,'fansNum',fansNum,'agencyName',agencyName,'anchorType',anchorType,'liveTag',liveTag,'weight',weight,'avatar',picUrl,'anchorClass',anchorClass,'telephone',telephone,'email',email,'serviceFee',serviceFee) anchorInfo,
-    JSON_OBJECT('pgLiveQuantity',pgLiveQuantity,'medianPrice',medianPrice,'pgAudienceNum',pgAudienceNum,'pgVisitNum'       ,pgVisitNum,'pgLikedNum',pgLikedNum) liveInfo,
-    JSON_OBJECT('hasShop',hasShop,'type',shopType) shopInfo
+    SELECT ID,anchorId, anchorName celebrity_name,fansNum fans_num,saleAbility goods_capacity,
+		startBuildModel,done, ifShow,updateTime
     from anchors
     ORDER BY fansNum DESC
-    LIMIT 50;
+    LIMIT ?;
     `;
-    const result = await connection.execute(statement);
+    const result = await connection.execute(statement, [require_num]);
     return result;
   }
 
@@ -86,6 +92,30 @@ class AnchorsService {
     WHERE ifShow = 0;
     `;
     const result = await connection.execute(statement);
+    return result[0];
+  }
+
+  // 前端_类别与价格匹配网红
+  async getMatchAnchorData(category, price, offset, size) {
+    const res = await getMatchAnchorDataSql(category, price, offset, size)
+    return res
+  }
+
+  // 前端_查询主播
+  async searchAnchorsByname(offset, size, celebrity_name) {
+
+    const statement = `
+    SELECT a.anchorId anchorId, anchorName celebrity_name, fansNum fans_num, saleAbility goods_capacity,
+    (SELECT count(*) FROM anchors WHERE anchorName LIKE ?) total,
+    isFollow isSubscribe
+    FROM anchors a LEFT JOIN subscribe s ON a.anchorId = s.anchorId
+    WHERE anchorName LIKE ?
+    LIMIT ?, ?;    
+    `;
+    offset = String(offset)
+    size = String(size)
+    celebrity_name = '%' + celebrity_name + '%'
+    const result = await connection.execute(statement, [celebrity_name,celebrity_name,offset, size]);
     return result[0];
   }
 }

@@ -13,10 +13,14 @@ const PASSWORD_IS_INCORRECT = "password_is_incorrect"
 // 未授权
 const UNAUTHORIZATION = "unuthorization"
 
+// 主播已关注过
+const ANCHOR_HAS_BEEN_SUBSCRIBED = "anchor_has_been_subscribed"
+
 module.exports = {
   NAME_OR_PASSWORD_IS_REQUIRED,
   USER_ALREADY_EXISTS,
   USER_DOES_NOT_EXISTS,
   PASSWORD_IS_INCORRECT,
-  UNAUTHORIZATION
+  UNAUTHORIZATION,
+  ANCHOR_HAS_BEEN_SUBSCRIBED
 }
